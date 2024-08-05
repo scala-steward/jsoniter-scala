@@ -8,14 +8,14 @@ import scala.collection.immutable.{BitSet, IndexedSeq, IntMap, Map, Seq}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-object PlayJsonFormats {
+object PlayJsonFormats extends PlatformSpecificPlayJsonFormats {
   def stringFormat[A](name: String)(f: String => A): Format[A] = new Format[A] {
     override def reads(js: JsValue): JsResult[A] =
       try new JsSuccess(f(js.asInstanceOf[JsString].value)) catch {
         case NonFatal(_) => JsError(s"expected.${name}string")
       }
 
-    override def writes(v: A): JsValue = JsString(v.toString)
+    override def writes(v: A): JsValue = new JsString(v.toString)
   }
 
   implicit def mutableMapReads[A, B](implicit mapReads: Reads[Map[A, B]]): Reads[mutable.Map[A, B]] =
@@ -82,8 +82,8 @@ object PlayJsonFormats {
     } yield MissingRequiredFields(s, i)
   }, (x: MissingRequiredFields) => {
     toJsObject(
-      "s" -> JsString(x.s),
-      "i" -> JsNumber(x.i)
+      "s" -> new JsString(x.s),
+      "i" -> new JsNumber(x.i)
     )
   })
   implicit lazy val nestedStructsFormat: Format[NestedStructs] = Format({
@@ -102,8 +102,8 @@ object PlayJsonFormats {
       } yield X(a)
     }, (x: X) => {
       toJsObject(
-        "type" -> JsString("X"),
-        "a" -> JsNumber(x.a)
+        "type" -> new JsString("X"),
+        "a" -> new JsNumber(x.a)
       )
     })
     val v2: Format[Y] = Format({
@@ -112,8 +112,8 @@ object PlayJsonFormats {
       } yield Y(b)
     }, (x: Y) => {
       toJsObject(
-        "type" -> JsString("Y"),
-        "b" -> JsString(x.b)
+        "type" -> new JsString("Y"),
+        "b" -> new JsString(x.b)
       )
     })
     val v3: Format[Z] = Format({
@@ -123,7 +123,7 @@ object PlayJsonFormats {
       } yield Z(l, r)
     }, (x: Z) => {
       toJsObject(
-        "type" -> JsString("Z"),
+        "type" -> new JsString("Z"),
         "l" -> Json.toJson(x.l)(adtBaseFormat),
         "r" -> Json.toJson(x.r)(adtBaseFormat)
       )
@@ -155,11 +155,11 @@ object PlayJsonFormats {
     toJsObject(
       "b" -> Json.toJson(x.b.a),
       "s" -> Json.toJson(x.s.a),
-      "i" -> JsNumber(x.i.a),
-      "l" -> JsNumber(x.l.a),
+      "i" -> new JsNumber(x.i.a),
+      "l" -> new JsNumber(x.l.a),
       "bl" -> JsBoolean(x.bl.a),
       "ch" -> Json.toJson(x.ch.a),
-      "dbl" -> JsNumber(x.dbl.a),
+      "dbl" -> new JsNumber(x.dbl.a),
       "f" -> Json.toJson(x.f.a)
     )
   })
@@ -1030,7 +1030,7 @@ object PlayJsonFormats {
       for {
         coppa <- (__ \ "coppa").read[Int]
       } yield OpenRTB.Reqs(coppa)
-    }, (x: OpenRTB.Reqs) => toJsObject("coppa" -> JsNumber(x.coppa)))
+    }, (x: OpenRTB.Reqs) => toJsObject("coppa" -> new JsNumber(x.coppa)))
     Format({
       for {
         id <- (__ \ "id").read[String]
@@ -1088,7 +1088,7 @@ object PlayJsonFormats {
       } yield TwitterAPI.Urls(url, expanded_url, display_url, indices)
     }, (x: TwitterAPI.Urls) => {
       toJsObject(
-        "url" -> JsString(x.url),
+        "url" -> new JsString(x.url),
         "expanded_url" -> new JsString(x.expanded_url),
         "display_url" -> new JsString(x.display_url),
         "indices" -> Json.toJson(x.indices),
@@ -1374,20 +1374,11 @@ object PlayJsonFormats {
     (s: String) => m(s)
   }
   implicit val javaEnumFormat: Format[Suit] = stringFormat("suitenum")(Suit.valueOf)
-  implicit val durationFormat: Format[Duration] = stringFormat("instant")(Duration.parse)
-  implicit lazy val instantFormat: Format[Instant] = stringFormat("instant")(Instant.parse)
-  implicit val localDateTimeFormat: Format[LocalDateTime] = stringFormat("localdatetime")(LocalDateTime.parse)
-  implicit val localDateFormat: Format[LocalDate] = stringFormat("localdate")(LocalDate.parse)
-  implicit val localTimeFormat: Format[LocalTime] = stringFormat("localtime")(LocalTime.parse)
   implicit val monthDayFormat: Format[MonthDay] = stringFormat("monthday")(MonthDay.parse)
-  implicit val offsetDateTimeFormat: Format[OffsetDateTime] = stringFormat("offsetdatetime")(OffsetDateTime.parse)
   implicit val offsetTimeFormat: Format[OffsetTime] = stringFormat("offsettime")(OffsetTime.parse)
-  implicit val periodFormat: Format[Period] = stringFormat("period")(Period.parse)
   implicit val yearFormat: Format[Year] = stringFormat("year")(Year.parse)
   implicit val yearMonthFormat: Format[YearMonth] = stringFormat("yearmonth")(YearMonth.parse)
   implicit val zoneOffsetFormat: Format[ZoneOffset] = stringFormat("zoneoffset")(ZoneOffset.of)
-  implicit val zoneIdFormat: Format[ZoneId] = stringFormat("zoneid")(ZoneId.of)
-  implicit val zonedDateTimeFormat: Format[ZonedDateTime] = stringFormat("zoneddatetime")(ZonedDateTime.parse)
 
   def toJsObject(fields: (String, JsValue)*): JsObject = JsObject(fields.filterNot { case (_, v) =>
     (v eq JsNull) || (v.isInstanceOf[JsArray] && v.asInstanceOf[JsArray].value.isEmpty)
