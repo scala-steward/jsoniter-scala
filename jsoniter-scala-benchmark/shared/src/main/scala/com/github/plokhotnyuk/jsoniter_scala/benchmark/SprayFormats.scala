@@ -1291,6 +1291,7 @@ object SprayFormats extends DefaultJsonProtocol {
       }
     }
 
+  @inline
   private[this] def toJson[T: JsonWriter](x: T, d: T): JsValue =
     if (x == d) JsNull
     else x.toJson

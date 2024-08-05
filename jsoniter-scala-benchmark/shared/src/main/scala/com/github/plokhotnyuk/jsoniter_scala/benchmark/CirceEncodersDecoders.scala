@@ -789,6 +789,7 @@ object CirceEncodersDecoders {
     deriveCodec
   }
 
+  @inline
   private[this] def toJson[T: Encoder](x: T, d: T): Json =
     if (x == d) Json.Null
     else x.asJson

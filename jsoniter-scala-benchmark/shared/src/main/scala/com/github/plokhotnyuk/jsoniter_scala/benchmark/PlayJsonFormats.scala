@@ -1384,8 +1384,10 @@ object PlayJsonFormats extends PlatformSpecificPlayJsonFormats {
     (v eq JsNull) || (v.isInstanceOf[JsArray] && v.asInstanceOf[JsArray].value.isEmpty)
   })
 
+  @inline
   private[this] def readType: Reads[String] = (__ \ "type").read[String]
 
+  @inline
   private[this] def toJson[T](x: T, d: T)(implicit tjs: Writes[T]): JsValue =
     if (x == d) JsNull
     else tjs.writes(x)
