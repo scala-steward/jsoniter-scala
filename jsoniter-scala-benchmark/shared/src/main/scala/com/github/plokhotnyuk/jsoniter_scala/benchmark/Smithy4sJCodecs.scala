@@ -34,11 +34,11 @@ object Smithy4sJCodecs {
     string.required[AnyVals]("ch", _.ch.a.toString),
     double.required[AnyVals]("dbl", _.dbl.a),
     float.required[AnyVals]("f", _.f.a)
-  )((b, s, i, l, bl, st, dbl, f) => AnyVals(ByteVal(b), ShortVal(s), IntVal(i), LongVal(l), BooleanVal(bl),
-    CharVal({
+  )((b, s, i, l, bl, st, dbl, f) => AnyVals(new ByteVal(b), new ShortVal(s), new IntVal(i), new LongVal(l), new BooleanVal(bl),
+    new CharVal({
       if (st.length == 1) st.charAt(0)
       else sys.error("illegal char")
-    }), DoubleVal(dbl), FloatVal(f))))
+    }), new DoubleVal(dbl), new FloatVal(f))))
   implicit val arrayOfBigDecimalsJCodec: JsonCodec[Array[BigDecimal]] =
     Json.deriveJsonCodec(bijection(indexedSeq(bigdecimal), (x: IndexedSeq[BigDecimal]) => x match {
       case x: ArraySeq[BigDecimal] => x.unsafeArray.asInstanceOf[Array[BigDecimal]]

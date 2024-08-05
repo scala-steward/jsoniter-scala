@@ -149,8 +149,8 @@ object PlayJsonFormats extends PlatformSpecificPlayJsonFormats {
       ch <- (__ \ "ch").read[Char]
       dbl <- (__ \ "dbl").read[Double]
       f <- (__ \ "f").read[Float]
-    } yield AnyVals(ByteVal(b), ShortVal(s), IntVal(i), LongVal(l), BooleanVal(bl), CharVal(ch), DoubleVal(dbl),
-      FloatVal(f))
+    } yield AnyVals(new ByteVal(b), new ShortVal(s), new IntVal(i), new LongVal(l), new BooleanVal(bl), new CharVal(ch),
+      new DoubleVal(dbl), new FloatVal(f))
   }, (x: AnyVals) => {
     toJsObject(
       "b" -> Json.toJson(x.b.a),
