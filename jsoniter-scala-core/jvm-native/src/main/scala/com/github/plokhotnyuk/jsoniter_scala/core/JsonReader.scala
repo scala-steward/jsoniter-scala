@@ -2112,6 +2112,32 @@ final class JsonReader private[jsoniter_scala](
     else {
       var pos = head
       var buf = this.buf
+      var dec = 0
+      while (x > -214748 && (pos + 3 < tail || {
+        pos = loadMore(pos)
+        buf = this.buf
+        pos + 3 < tail
+      }) && {
+        dec = ByteArrayAccess.getInt(buf, pos) - 0x30303030 // Based on the fast parsing of numbers by 8-byte words: https://github.com/wrandelshofer/FastDoubleParser/blob/0903817a765b25e654f02a5a9d4f1476c98a80c9/src/main/java/ch.randelshofer.fastdoubleparser/ch/randelshofer/fastdoubleparser/FastDoubleSimd.java#L114-L130
+        ((dec + 0x76767676 | dec) & 0x80808080) == 0 || {
+          var d = 0
+          while ({
+            d = dec & 0xFF
+            d <= 9
+          }) {
+            x *= 10
+            x -= d
+            dec >>= 8
+            pos += 1
+          }
+          false
+        }
+      }) {
+        dec = (dec * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+        x *= 10000
+        x -= dec
+        pos += 4
+      }
       while ((pos < tail || {
         pos = loadMore(pos)
         buf = this.buf
@@ -2150,23 +2176,31 @@ final class JsonReader private[jsoniter_scala](
     else {
       var pos = head
       var buf = this.buf
-      var dec = 0L
-      while ((pos + 7 < tail || {
+      var dec = 0
+      while (x > -922337203685477L && (pos + 3 < tail || {
         pos = loadMore(pos)
         buf = this.buf
-        pos + 7 < tail
+        pos + 3 < tail
       }) && {
-        val bs = ByteArrayAccess.getLong(buf, pos) // Based on the fast parsing of numbers by 8-byte words: https://github.com/wrandelshofer/FastDoubleParser/blob/0903817a765b25e654f02a5a9d4f1476c98a80c9/src/main/java/ch.randelshofer.fastdoubleparser/ch/randelshofer/fastdoubleparser/FastDoubleSimd.java#L114-L130
-        dec = bs - 0x3030303030303030L
-        ((bs + 0x4646464646464646L | dec) & 0x8080808080808080L) == 0
+        dec = ByteArrayAccess.getInt(buf, pos) - 0x30303030 // Based on the fast parsing of numbers by 8-byte words: https://github.com/wrandelshofer/FastDoubleParser/blob/0903817a765b25e654f02a5a9d4f1476c98a80c9/src/main/java/ch.randelshofer.fastdoubleparser/ch/randelshofer/fastdoubleparser/FastDoubleSimd.java#L114-L130
+        ((dec + 0x76767676 | dec) & 0x80808080) == 0 || {
+          var d = 0
+          while ({
+            d = dec & 0xFF
+            d <= 9
+          }) {
+            x *= 10
+            x -= d
+            dec >>= 8
+            pos += 1
+          }
+          false
+        }
       }) {
-        if (x < -92233720368L || {
-          dec *= 2561
-          x *= 100000000
-          x -= ((dec >> 8 & 0xFF000000FFL) * 4294967296000100L + (dec >> 24 & 0xFF000000FFL) * 42949672960001L >> 32)
-          x > 0
-        }) longOverflowError(pos + 2)
-        pos += 8
+        dec = (dec * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+        x *= 10000
+        x -= dec
+        pos += 4
       }
       while ((pos < tail || {
         pos = loadMore(pos)
@@ -2252,6 +2286,36 @@ final class JsonReader private[jsoniter_scala](
       pos += 1
       e10 += digits
       var noFracDigits = true
+      var dec = 0
+      while (m10 < 922337203685477L && (pos + 3 < tail || {
+        pos = loadMore(pos)
+        buf = this.buf
+        pos + 3 < tail
+      }) && {
+        dec = ByteArrayAccess.getInt(buf, pos) - 0x30303030 // Based on the fast parsing of numbers by 8-byte words: https://github.com/wrandelshofer/FastDoubleParser/blob/0903817a765b25e654f02a5a9d4f1476c98a80c9/src/main/java/ch.randelshofer.fastdoubleparser/ch/randelshofer/fastdoubleparser/FastDoubleSimd.java#L114-L130
+        ((dec + 0x76767676 | dec) & 0x80808080) == 0 || {
+          var d = 0
+          while ({
+            d = dec & 0xFF
+            d <= 9
+          }) {
+            m10 *= 10
+            m10 += d
+            noFracDigits = false
+            digits += 1
+            dec >>= 8
+            pos += 1
+          }
+          false
+        }
+      }) {
+        dec = (dec * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+        m10 *= 10000
+        m10 += dec
+        noFracDigits = false
+        digits += 4
+        pos += 4
+      }
       while ((pos < tail || {
         pos = loadMore(pos)
         buf = this.buf
@@ -2261,7 +2325,9 @@ final class JsonReader private[jsoniter_scala](
         b >= '0' && b <= '9'
       }) {
         if (m10 < 922337203685477580L) {
-          m10 = m10 * 10 + (b - '0')
+          m10 *= 10
+          m10 += b
+          m10 -= '0'
           digits += 1
         }
         noFracDigits = false
