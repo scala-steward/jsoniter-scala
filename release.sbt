@@ -35,8 +35,22 @@ lazy val updateVersionInReadmeAndExamples: ReleaseStep = { st: State =>
 addCommandAlias(
   "releaseTest",
   "+jsoniter-scala-coreJVM/test; +jsoniter-scala-coreJS/test; +jsoniter-scala-coreNative/test; " +
-    "+jsoniter-scala-macrosJVM/test; +jsoniter-scala-macrosJS/test; +jsoniter-scala-macrosNative/test; " +
-    "+jsoniter-scala-circeJVM/test; +jsoniter-scala-circeJS/test; +jsoniter-scala-circeNative/test; "
+  "+jsoniter-scala-macrosJVM/test; +jsoniter-scala-macrosJS/test; +jsoniter-scala-macrosNative/test; " +
+  "+jsoniter-scala-circeJVM/test; +jsoniter-scala-circeJS/test; +jsoniter-scala-circeNative/test; "
+)
+
+addCommandAlias(
+  "releaseMima",
+  "+jsoniter-scala-coreJVM/mimaReportBinaryIssues; +jsoniter-scala-coreJS/mimaReportBinaryIssues; +jsoniter-scala-coreNative/mimaReportBinaryIssues; " +
+  "+jsoniter-scala-macrosJVM/mimaReportBinaryIssues; +jsoniter-scala-macrosJS/mimaReportBinaryIssues; +jsoniter-scala-macrosNative/mimaReportBinaryIssues; " +
+  "+jsoniter-scala-circeJVM/mimaReportBinaryIssues; +jsoniter-scala-circeJS/mimaReportBinaryIssues; +jsoniter-scala-circeNative/mimaReportBinaryIssues; "
+)
+
+addCommandAlias(
+  "releasePublish",
+  "+jsoniter-scala-coreJVM/publishSigned; +jsoniter-scala-coreJS/publishSigned; +jsoniter-scala-coreNative/publishSigned; " +
+  "+jsoniter-scala-macrosJVM/publishSigned; +jsoniter-scala-macrosJS/publishSigned; +jsoniter-scala-macrosNative/publishSigned; " +
+  "+jsoniter-scala-circeJVM/publishSigned; +jsoniter-scala-circeJS/publishSigned; +jsoniter-scala-circeNative/publishSigned; "
 )
 
 releaseCrossBuild := false
@@ -48,11 +62,11 @@ releaseProcess := Seq[ReleaseStep](
   runClean,
   releaseStepCommandAndRemaining("releaseTest"),
   setReleaseVersion,
-  releaseStepCommandAndRemaining("+mimaReportBinaryIssues"),
+  releaseStepCommandAndRemaining("releaseMima"),
   updateVersionInReadmeAndExamples,
   commitReleaseVersion,
   tagRelease,
-  releaseStepCommandAndRemaining("+publishSigned"),
+  releaseStepCommandAndRemaining("releasePublish"),
   releaseStepCommand("sonaRelease"),
   setNextVersion,
   commitNextVersion,
