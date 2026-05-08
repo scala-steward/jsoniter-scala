@@ -475,6 +475,7 @@ final class JsonWriter private[jsoniter_scala](
    * @param msg the error message
    * @throws JsonWriterException always
    */
+  @noinline
   def encodeError(msg: String): Nothing =
     throw new JsonWriterException(msg, null, config.throwWriterExceptionWithStackTrace)
 
@@ -1699,6 +1700,7 @@ final class JsonWriter private[jsoniter_scala](
     pos + 6
   }
 
+  @noinline
   private[this] def illegalSurrogateError(): Nothing = encodeError("illegal char sequence of surrogate pair")
 
   private[this] def writeBigInteger(x: BigInteger, ss: Array[BigInteger]): Unit = {
@@ -2883,8 +2885,10 @@ final class JsonWriter private[jsoniter_scala](
     }
   }
 
+  @noinline
   private[this] def illegalNumberError(x: Float): Nothing = encodeError("illegal number: " + x)
 
+  @noinline
   private[this] def illegalNumberError(x: Double): Nothing = encodeError("illegal number: " + x)
 
   @inline
@@ -2894,6 +2898,7 @@ final class JsonWriter private[jsoniter_scala](
     else flushAndGrowBuf(required, pos)
   }
 
+  @noinline
   private[this] def flushAndGrowBuf(required: Int, pos: Int): Int =
     if (bbuf ne null) {
       bbuf.put(buf, 0, pos)
@@ -2909,11 +2914,14 @@ final class JsonWriter private[jsoniter_scala](
       pos
     }
 
+  @noinline
   private[this] def growBuf(required: Int): Unit =
     setBuf(java.util.Arrays.copyOf(buf, (-1 >>> Integer.numberOfLeadingZeros(limit | required)) + 1))
 
+  @noinline
   private[this] def reallocateBufToPreferredSize(): Unit = setBuf(new Array[Byte](config.preferredBufSize))
 
+  @inline
   private[this] def setBuf(buf: Array[Byte]): Unit = {
     this.buf = buf
     limit = buf.length
