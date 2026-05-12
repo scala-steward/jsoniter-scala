@@ -1824,7 +1824,7 @@ private class JsonCodecMakerInstance(cfg: CodecMakerConfig)(using Quotes) {
         n =>
           i += 1
           CaseDef(Literal(IntConstant(i)), None, Literal(StringConstant(n)))
-      }
+      } :+ CaseDef(Wildcard(), None, '{ ??? }.asTerm)
       new Some(Match(param.asExpr.asTerm, cases))
     }))
     ref
