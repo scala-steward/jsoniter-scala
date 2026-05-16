@@ -2669,6 +2669,11 @@ final class JsonReader private[jsoniter_scala](
         if (len < 19) {
           var x = (buf(from) - '0').toLong
           from += 1
+          while (from + 3 < pos) {
+            x *= 10000
+            x += ((ByteArrayAccess.getInt(buf, from) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+            from += 4
+          }
           while (from < pos) {
             x = x * 10 + (buf(from) - '0')
             from += 1
@@ -2836,6 +2841,11 @@ final class JsonReader private[jsoniter_scala](
               from += 1
             }
             from += 1
+            while (from + 3 < limit) {
+              x *= 10000
+              x += ((ByteArrayAccess.getInt(buf, from) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+              from += 4
+            }
             while (from < limit) {
               x = x * 10 + (buf(from) - '0')
               from += 1
@@ -2855,6 +2865,11 @@ final class JsonReader private[jsoniter_scala](
       var pos = p
       var x = (buf(pos) - '0').toLong
       pos += 1
+      while (pos + 3 < limit) {
+        x *= 10000
+        x += ((ByteArrayAccess.getInt(buf, pos) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+        pos += 4
+      }
       while (pos < limit) {
         x = x * 10 + (buf(pos) - '0')
         pos += 1
@@ -2877,6 +2892,11 @@ final class JsonReader private[jsoniter_scala](
     var pos = p
     var x1 = (buf(pos) - '0').toLong
     pos += 1
+    while (pos + 3 < firstBlockLimit) {
+      x1 *= 10000
+      x1 += ((ByteArrayAccess.getInt(buf, pos) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+      pos += 4
+    }
     while (pos < firstBlockLimit) {
       x1 = x1 * 10 + (buf(pos) - '0')
       pos += 1
@@ -2909,6 +2929,11 @@ final class JsonReader private[jsoniter_scala](
     var pos = p
     var x1 = (buf(pos) - '0').toLong
     pos += 1
+    while (pos + 3 < firstBlockLimit) {
+      x1 *= 10000
+      x1 += ((ByteArrayAccess.getInt(buf, pos) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+      pos += 4
+    }
     while (pos < firstBlockLimit) {
       x1 = x1 * 10 + (buf(pos) - '0')
       pos += 1
@@ -2953,6 +2978,11 @@ final class JsonReader private[jsoniter_scala](
     var x = 0L
     val firstBlockLimit = len % 18 + p
     var pos = p
+    while (pos + 3 < firstBlockLimit) {
+      x *= 10000
+      x += ((ByteArrayAccess.getInt(buf, pos) - 0x30303030) * 2561 >> 8 & 0xFF00FF) * 6553601 >> 16
+      pos += 4
+    }
     while (pos < firstBlockLimit) {
       x = x * 10 + (buf(pos) - '0')
       pos += 1
